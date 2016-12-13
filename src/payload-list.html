@@ -1,0 +1,108 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<dom-module id="payload-list">
+    <template>
+      <style>
+        :host {
+          display: block;
+          @apply(--paper-font-common-base);
+        }
+        #list {
+          margin-top: 63px;
+          --iron-list-items-container: {
+            max-width: 800px;
+            margin: 10px auto;
+            border-bottom: 1px solid #ddd;
+          };
+        }
+        .group-header,
+        .group-item {
+          padding: 15px 20px;
+          background-color: white;
+          font-size: 15px;
+        }
+        .group-item {
+          @apply(--layout-horizontal);
+          cursor: pointer;
+          border-left: 1px solid #ddd;
+          border-right: 1px solid #ddd;
+        }
+        .group-header {
+          font-weight: bold;
+          border: 1px solid #ddd;
+          color: #333;
+          margin-top: 20px;
+        }
+        .group-header:before {
+          content: '';
+          border-top: 1px solid #ddd;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+        }
+        .avatar {
+          height: 20px;
+          width: 20px;
+          border-radius: 20px;
+          box-sizing: border-box;
+          background-color: #DDD;
+          margin-right: 16px;
+        }
+        .pad {
+          line-height: 20px;
+        }
+        .secondary {
+          color: gray;
+          margin-left: 10px;
+        }
+      </style>
+
+      <iron-list id="list" items="[[items]]" scroll-target="document">
+        <template>
+          <div>
+            <div class="group-header" hidden$="[[!_hasGroup(index)]]">[[item.location]]</div>
+            <div class="group-item">
+              <iron-image class="avatar" sizing="contain" src="[[item.image]]"></iron-image>
+              <div class="pad">
+                <span class="primary">[[item.name]]</span> <span class="secondary">[[item.shortText]]</span>
+              </div>
+            </div>
+          </div>
+        </template>
+    </iron-list>
+
+    </template>
+
+    <script>
+    Polymer({
+        is: 'payload-list',
+        properties: {
+            items: Array,
+            groups: Array
+        },
+        attached: function() {
+          this.groups = {};
+        },
+        scrollToIndex: function(idx) {
+            this.$.list.scrollToIndex(idx);
+        },
+        _hasGroup: function(idx) {
+            return this.groups[idx] == true;
+        }
+    });
+    </script>
+</dom-module>

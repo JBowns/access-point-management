@@ -1,0 +1,107 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+
+<link rel="import" href="payload-list.html">
+
+<dom-module id="apm-app">
+    <template>
+
+    <style include="shared-styles">
+        app-toolbar {
+          font-size: 18px;
+          font-weight: bold;
+          background-color: var(--google-blue-700);
+          box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+          color: white;
+          z-index: 1;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+        }
+        app-toolbar paper-icon-button {
+          --paper-icon-button-ink-color: white;
+        }
+        .location-list {
+          width: 250px;
+          height: 80vh;
+          color: black;
+        }
+    </style>
+
+    <iron-ajax url="/sample/data.json" last-response="{{items}}" auto></iron-ajax>
+
+    <app-toolbar>
+        <div main-title>Wifi Connections</div>
+        <paper-menu-button id="menu" dynamic-align>
+            <paper-icon-button icon="filter-list" class="dropdown-trigger"></paper-icon-button>
+            <iron-list class="location-list dropdown-content" items="[[locations]]">
+            <template>
+                <paper-item on-click="_onLocationClick">[[item.location]]</paper-item>
+            </template>
+            </iron-list>
+        </paper-menu-button>
+    </app-toolbar>
+
+    <payload-list id="list" items="[[_generateGroupsFor(items)]]" groups="[[groups]]"></payload-list>
+
+    </template>
+
+    <script>
+    Polymer({
+        is: 'apm-app',
+        properties: {
+            items: Array,
+            locations: Array,
+            groups: Array
+        },
+        attached: function() {
+            this.groups = {};
+        },
+        _generateGroupsFor: function(items) {
+            // Sort by location name
+            var items = items.slice().sort(function(a, b) {
+                return a.location.localeCompare(b.location);
+            });
+            var locations = [];
+            // Group by location where _groupIdxMap[index] = true means that items[index] starts a new group
+            this.groups = items.reduce(function(map, item, idx, arr) {
+                if (idx == 0 || item.location != arr[idx - 1].location) {
+                    map[idx] = true;
+                    locations.push({
+                        location: item.location,
+                        index: idx
+                    });
+                }
+                return map;
+            }, {});
+            this.locations = locations;
+            return items;
+        },
+        _onLocationClick: function(e) {
+            // scroll on the main list
+            this.$.menu.close();
+            this.$.list.scrollToIndex(e.model.item.index);
+        }
+    });
+    </script>
+</dom-module>
